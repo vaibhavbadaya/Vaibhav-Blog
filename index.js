@@ -4,7 +4,8 @@ const PORT = 8000;
 const path = require("path");
 const userRouter = require("./routers/user");
 const mongoose = require("mongoose");
-
+const cookieParser = require("cookie-parser");
+const {checkAuth} = require("./middlewares/auth");
 
 mongoose.connect('mongodb://localhost:27017/BlogTech').then(() => {
     console.log("Connected to MongoDB");
@@ -12,17 +13,17 @@ mongoose.connect('mongodb://localhost:27017/BlogTech').then(() => {
     console.error("Error connecting to MongoDB", err);
 });
 
-
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use("/user", userRouter);
-
+app.use(checkAuth("token"));
 
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
 
 app.get("/", (req, res) => {
-    res.render("home");
+    res.render("home", {user: req.user});
 });
 
 
