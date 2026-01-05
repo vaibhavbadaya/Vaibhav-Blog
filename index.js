@@ -6,6 +6,10 @@ const userRouter = require("./routers/user");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const {checkAuth} = require("./middlewares/auth");
+const Blog = require("./models/blog");
+
+
+const blogRoute = require("./routers/blog");
 
 mongoose.connect('mongodb://localhost:27017/BlogTech').then(() => {
     console.log("Connected to MongoDB");
@@ -18,15 +22,24 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use("/user", userRouter);
 app.use(checkAuth("token"));
+app.use(express.static(path.resolve("./public")));
 
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
+
+app.get("/", async (req, res) => {
+  const allBlogs = await Blog.find({});
+  res.render("home", {
+    user: req.user,
+    blogs: allBlogs,
+  });
+});
 
 app.get("/", (req, res) => {
     res.render("home", {user: req.user});
 });
 
-
+app.use("/blog", blogRoute);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
