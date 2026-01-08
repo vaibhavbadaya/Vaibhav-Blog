@@ -1,17 +1,19 @@
+require("dotenv").config();
 const express =require("express")
 const app = express();
-const PORT = 8000;
 const path = require("path");
 const userRouter = require("./routers/user");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const {checkAuth} = require("./middlewares/auth");
 const Blog = require("./models/blog");
-
+const PORT = process.env.PORT || 8000;
 
 const blogRoute = require("./routers/blog");
 
-mongoose.connect('mongodb://localhost:27017/BlogTech').then(() => {
+mongoose
+.connect(process.env.MONGO_URL)
+.then(() => {
     console.log("Connected to MongoDB");
 }).catch((err) => {
     console.error("Error connecting to MongoDB", err);
